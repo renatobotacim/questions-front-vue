@@ -34,7 +34,12 @@ const routes = [
     path: '/dimensions/edit/:id',
     name: 'Dimension',
     component: () => import(/* webpackChunkName: "about" */ '../views/dimensions/update.vue')
-  }
+  },
+  {
+    path: '/dimensions/create',
+    name: 'Create Dimensions ',
+    component: () => import(/* webpackChunkName: "about" */ '../views/dimensions/create.vue')
+  },
 ]
 
 const router = new VueRouter({

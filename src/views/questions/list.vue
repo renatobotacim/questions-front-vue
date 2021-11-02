@@ -25,13 +25,26 @@
         </v-btn>
       </v-col>
     </v-row>
+    <v-row class="mt-3">
+      <v-col cols="12" md="3">
+        <v-select
+          v-model="filterSelected"
+          :items="dataFilter"
+          outlined
+          item-text="name"
+          item-value="id"
+          label="Filtro por Dimensão"
+          @change="onChange()"
+        ></v-select>
+      </v-col>
+    </v-row>
     <div class="about mb-3"></div>
     <v-data-table :headers="headers" :items="dataQuestions" class="elevation-3">
       <template v-slot:item.status="{ item }">
         <v-simple-checkbox
           v-model="item.status"
           color="success"
-          @click="editStatusQuestion(item.status)"
+          @click="editStatusQuestion(item.id, item.status)"
         >
         </v-simple-checkbox>
       </template>
@@ -42,7 +55,7 @@
           elevation="6"
           class="mr-2"
           small
-          @click="editItem(item.id)"
+          :to="'/questions/edit/' + item.id"
         >
           <v-icon small> mdi-pencil </v-icon>&nbsp;Editar
         </v-btn>
@@ -73,44 +86,10 @@
 </template>
 <script>
 import questionsService from "@/services/questionsService";
+import dimensionsService from "@/services/dimensionsService";
 export default {
   name: "Questions",
   components: {},
-
-  methods: {
-    editStatusQuestion(status) {
-      console.log(status);
-    },
-
-    editItem(item) {
-      this.$router.push("/questions/edit/" + item);
-    },
-
-    deleteItem(item) {
-      this.dialogDelete = true;
-      this.editedIndex = this.desserts.indexOf(item);
-      this.editedItem = Object.assign({}, item);
-    },
-    deleteCloseMessage() {
-      this.dialogDelete = false;
-    },
-    deleteItemConfirm() {
-      //faz um update do registro.
-      this.dialogDelete = false;
-    },
-
-    findAll: async function () {
-      this.loading = true;
-      let serviceQuestions = new questionsService();
-      try {
-        let res = await serviceQuestions.findAll();
-        this.dataQuestions = res.data;
-      } catch (e) {
-        this.$router.push("../questions");
-        console.error(e);
-      }
-    },
-  },
 
   data() {
     return {
@@ -119,36 +98,87 @@ export default {
       selected: [],
       headers: [
         { text: "status", value: "status" },
-        { text: "Dimenssão", value: "dimension_id" },
-        {
-          text: "Pergunta",
-          align: "start",
-          sortable: false,
-          value: "question",
-        },
+        { text: "Dimenssão", value: "name" },
+        { text: "Pergunta", sortable: false, value: "question" },
         { text: "Ação", value: "actions" },
       ],
-      dataQuestions: [
-        // {
-        //   status: 1,
-        //   dimension_id: "Estrutura",
-        //   question:
-        //     "Quantos dias na semana você prefere trabalhar em home-office?",
-        //   actions: 24,
-        //   id: 11,
-        // },
-      ],
+      dataQuestions: [],
+      idDelete: "",
+      dataFilter: [],
+      filterSelected:'',
     };
   },
 
-  deleteItemConfirm() {
-    alert("t");
-    // this.desserts.splice(this.editedIndex, 1);
-    // this.closeDelete();
+  methods: {
+    editStatusQuestion: async function (id, newStatus) {
+      try {
+        let data = { status: newStatus };
+        let serviceQuestions = new questionsService();
+        await serviceQuestions.update(id, data);
+        this.findAll();
+        this.$showAlert("Registro Cadastrado com sucesso", "success");
+      } catch (error) {
+        this.$showAlert(error.response.data.message, "error");
+        console.log(error);
+      }
+    },
+
+    deleteItem(item) {
+      this.dialogDelete = true;
+      this.idDelete = item;
+    },
+
+    deleteCloseMessage() {
+      this.dialogDelete = false;
+    },
+    deleteItemConfirm: async function () {
+      try {
+        let data = { deleted: 1 };
+        let serviceQuestions = new questionsService();
+        await serviceQuestions.update(this.idDelete, data);
+        this.dialogDelete = false;
+        this.findAll();
+        this.$showAlert("Registro apagado com sucesso", "success");
+      } catch (error) {
+        this.$showAlert(error.response.data.message, "error");
+        console.log(error);
+      }
+    },
+
+    // list all questions
+    findAll: async function () {
+      this.loading = true;
+      let serviceQuestions = new questionsService();
+      try {
+        let res = await serviceQuestions.findAll(this.filterSelected);
+        this.dataQuestions = res.data;
+      } catch (e) {
+        this.$router.push("../questions");
+        console.error(e);
+      }
+    },
+
+    // list all dimensios for select
+    findAllDimensions: async function () {
+      this.loading = true;
+      let serviceDimension = new dimensionsService();
+      try {
+        let res = await serviceDimension.findAll();
+        this.dataFilter = res.data;
+      } catch (e) {
+        this.$router.push("../questions");
+        console.error(e);
+      }
+    },
+
+    onChange(){
+      this.findAll();
+    }
   },
 
   mounted() {
     this.findAll();
+    this.findAllDimensions();
   },
 };
 </script>

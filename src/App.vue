@@ -5,14 +5,18 @@
         <v-row>
           <v-col cols="12" md="6">
             <div class="d-flex align-center">
-              <v-img
-                alt="Vuetify Logo"
+              <a href="./">
+                   <v-img
+                alt="Logo"
                 class="shrink mr-2"
                 contain
                 src="./assets/logo.png"
                 transition="scale-transition"
                 width="100"
+               
               />
+                </a>
+           
             </div>
           </v-col>
           <v-col cols="12" class="text-right pt-5" md="6">
@@ -26,6 +30,17 @@
         </v-row>
       </v-container>
     </v-app-bar>
+
+    <!-- <v-alert
+      v-model="alertStatus"
+      style="width: 400px; position: fixed; z-index: 5; top: 30px; right: 30px"
+      border="right"
+      color="green"
+      dismissible
+      elevation="5"
+      :type="this.alertType"
+      >{{ this.alertMessage }}</v-alert
+    > -->
 
     <v-main>
       <router-view />
@@ -56,6 +71,22 @@ export default {
   name: "App",
 
   data: () => ({
+    // alertStatus: false,
+    // alertMessage: "",
+    // alertType: "",
   }),
+
+  methods: {
+    // tt(type, message) {
+    //   this.alertStatus = true;
+    //   this.alertMessage = message;
+    //   this.alertType = type;
+    //   window.setInterval(() => {
+    //     this.alertStatus = false;
+    //   }, 5000);
+    // },
+  },
+  mounted() {   
+  },
 };
 </script>

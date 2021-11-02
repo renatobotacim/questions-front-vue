@@ -2,10 +2,11 @@
   <v-container>
     <v-row class="mt-3">
       <v-col cols="12" md="6">
-        <h2><v-icon> mdi-comment-edit-outline </v-icon>&nbsp;Editar Dimensão</h2>
+        <h2><v-icon> mdi-plus </v-icon>&nbsp;Cadastrar Dimensão</h2>
       </v-col>
     </v-row>
 
+    <v-form v-model="valid">
       <v-flex>
         <v-row>
           <v-col cols="12" md="12">
@@ -19,11 +20,22 @@
         </v-row>
         <v-row>
           <v-col cols="12" md="4">
-            <v-btn dark small class="mr-4" color="success" @click="update()" :disabled="dataForm == ''">Salvar</v-btn>
-            <v-btn dark small color="red darken-1" @click="cancel()">Cancelar</v-btn>
+            <v-btn
+              dark
+              small
+              class="mr-4"
+              color="success"
+              @click="create()"
+              :disabled="dataForm == ''"
+              >Salvar</v-btn
+            >
+            <v-btn dark small color="red darken-1" @click="cancel()"
+              >Cancelar</v-btn
+            >
           </v-col>
         </v-row>
       </v-flex>
+    </v-form>
   </v-container>
 </template>
 <script>
@@ -35,25 +47,11 @@ export default {
     valid: true,
     questionRules: [(v) => !!v || "Este campo é obrigatório!"],
   }),
-
   methods: {
-
-    readDimension: async function () {
-      this.loading = true;
-      let serviceDimensions = new dimensionsService();
-      try {
-        let res = await serviceDimensions.findById(this.$route.params.id);
-        this.dataForm = res.data;
-      } catch (e) {
-        this.$router.push("../dimensions");
-        console.error(e);
-      }
-    },
-
-    update: async function () {
+    create: async function () {
       try {
         let serviceDimensions = new dimensionsService();
-        await serviceDimensions.update(this.$route.params.id, this.dataForm);
+        await serviceDimensions.create(this.dataForm);
         this.$router.push("/dimensions");
         this.$showAlert("Registro Cadastrado com sucesso", "success");
       } catch (error) {
@@ -66,8 +64,6 @@ export default {
       this.$router.push("/dimensions");
     },
   },
-  mounted() {
-    this.readDimension();
-  },
+  mounted() {},
 };
 </script>
